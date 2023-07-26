@@ -1,0 +1,90 @@
+
+### Grundlegende Kommandos
+
++ 'cd -Verzeichnis-': in das Verzeichnis wechseln
++ 'cd': wechselt ins Heimatverzeichnis des aktuellen Benutzers
++ 'cat -datei-': Inhalt '-datei-' auasgeben
++ 'less -datei': Inhalt von '-datei-' in einem Pager ausgeben (Seitenweise, Möglichkeit zur Suche etc.)
++ 'echo': gibt alle Argumente aus
+	+ 'echo $var': gibt den Inhalt der Variablen aus 
+	+ kann auch zum Debugging verwendert werden. Zeigt das Ergebnis des Globbings an, ohne es auszuführen.
++ 'touch':
+
+### Hilfe auf der Kommandozeile
+
++ Option '-Kommando- --help'
++ Manpages 'man -kommando-': gibt es in der Regel nur für _extern_ realisierte Kommandos, nicht für Builtins (z.B. 'cd', 'export', 'alias' usw.)
++ 'help -builtin-' zeigt die Hilfe Seite für Builtins an
++ 'help' Liste aller Builtins
++ 'type -kommando-' zeigt die Art eines Kommandos an: extern, Builtin, Alias etc.
++ Info System: 'info -Kommando-' zeigt die Info-Seite eines Kommandos an. Info Seiten sind noch ausführlicher als die Manpages, gibt es aber nicht für alle Kommandos, muss mit 'apt install info' installiert werden.
+
+### Pfadangaben
+
++ absoluter Pfad: Kompletter Pfad, _immer_ ausgehend vom Wurzelverzeichnis '/', beginnt fast immer mit einem '/'. Einzige Ausnahme ist die Verwendung der Tilde '~' (aber diese steht für '/home/user').
++ relativer Pfad: ausgehend vom _aktuellen_ Verzeichnis, beginnt _nie_ mit einem '/'
+
+### Dateioperationen
+
++ 'cp -quelle- -ziel-': Kopiert die Datei '-quelle-' nach '-ziel-'. '-ziel-' kann entweder eine Datei oder ein Verzeichnis sein.
++ cp -r -quellverzeichnis- -zielverzeichnis-': Kopiert das gesamte Verzeichnis inkl. Inhalt ('-r': _rekursiv_).
++ 'rm -datei-': löscht die Datei ohne Nachfrage
++ 'rm -r -Verzeichniss-': löscht das gesamte Verzeichnis inkl. Inhalt ohne Nachfrage
++ 'mv -quelle- -ziel-': Verschiebt '-quelle-' nach '-ziel-'. '-quelle-' kann sowohl eine Datei als auch ein Verzeichnis sein. Es gibt keine Option '-r' für 'mv'.
++ 'mv -quelle- -ziel-': bennent '-quelle-' um.
+ 
+	* '-i' _interactive_: kann 'cp', 'mv', 'rm' übergeben werden, so dass eine Nachfrage erscheint, falls eine Datei überschrieben oder gelöscht werden würde.
+
+### Sonderzeichen
+
++ In der BASH gibt es bestimmte Sonderzeichen, welche nicht als reguläre Satzzeichen interpretiert werden, sondern eine Sonderbedeutung haben.
++ Eins der wichtigsten Sonderzeichen das Leerzeichen/Space, dies ist das **TRENNZEICHEN**, hiermit erkennt die Shell z.B. was ein Kommando ist, was eine Option, was ein Argument usw.
++ Wollen wir ein Sonderzeichen als reguläres Satzteichen darstellen ohne Sonderbedeutung, so müssen wir dieses Zeichen __maskieren__ bzw. __escapen__:
++ die doppelten Anführungszeichen ´ " "´ escapen alle Sonderzeichen bis auf das '$' (Subtitution)
++ die einfachen Sonderzeichen ´ ' ´ escapen sämtliche Sonderzeichen
++ der Backslash ' \' maskiert das direkt darauffolgende Zeichen
++ einige Sonderzeichen:
+	+ ' ; ':  '-kommando1- ; -kommando2-': beide Kommandos werden nacheinander ausgeführt, unabhängig, ob sie erfolgreich waren oder nicht.
+	+  ' && ':  '-kommando1- && -kommando2-': wird nur ausgeführt, wenn '-kommando1-' __erfolgreich ausgeführt__ werden konnte.
+	+ ' | | ': '-kommando1- || -kommando2-': '-kommando2-' wird nur dann ausgeführt, wenn '-kommando1-' __nicht erfolgreich ausgeführt__ werden konnte.
+	+ '~': Abkürzung für das Heimatverzeichnis des aktuellen Benutzers.
+	+ '$': Substitution/Ersetzung, z.B.: $ var' $-Kommando-' '$ ' $((berechnung))'
+	+ '#': Leitet einen Kommentar ein.
+	+ ' * ': Globbing Character (Asterisk) - steht für ein beliebiges Zeichen, dass beliebig oft vorkommen darf (auch kein Mal).
+	+ ' ? ': Globbing Character - steht für ein beliebiges Zeichen, dass exakt einmal vorkommt.
+
+### Variablen
+
++ Es gibt zwei Arten von Variablen:
+	+ Shellvariablen: sind nur in der aktuellen Shell gültig 
+	+ Umgebungsvariablen: sind in allen Shells gültig (werden komplett in Großbuchstaben geschrieben), müssen in bestimmten Dateien konfiguriert werden (z.B. '~/.bashrc', '~/.profile' etc.).
+	+ mit dem Kommando 'export' kann eine Shellvariable auch in Subshells verfügbar gemacht werden
+
+### Subshells
+
+Eine Shell, die innerhalb einer anderen Shell geöffnet wird. Passiert relativ oft dass wir es direkt merken, z.B. bei der Kommandosubstitution, beim Aufruf von Funktionen in Skripten usw.
+Eine Subshell ist abhängig von der Elternshell. Wird die Elternshell geschlossen, werden gleichzeitig  auch alle Subshells geschlossen.
+
+### Autocompletion
+
+Mit der TAB-Taste können Pfade, Kommandos, Optionen usw. automatisch vervollständigt werden.
+Gibt es mehrere Möglichkeiten zur Vervollständigung, kann man zweimal die TAB-Taste drücken und erhält eine Übersicht über die verschiedenen Möglichkeiten.
+
+### Brace Expansions
+
++ 'touch file_{001..100}.txt' erstellt 100 Dateien mit den Namen 'file_001.txt' bis 'file_100.txt'.
++ 'ls * .{pdf, txt}' zeigt alle 'txt' und 'pdf' Dateien an.
+
+### Konfigurationsdateien
+
++ Systemweite Konfigurationsdateien: liegen immer unter '/etc', sind für alle Benutzer gültig (z.B. ' etc/bash.bashrc')
++ Benutzerspezifische Konfigurationsdateien: liegen immer im Heimatverzeichnis des Benutzers, beginnen immer mit einem ' . ', oder liegen in einem Verzeichnis, das mit einem Punkt beginnt (z.B. '~/bashrc', '~/config/htop')
++ Einträge in den benutzerspezifischen Konfigurationsdateien überschreiben ggf. Einträge aus der systemweiten
++ So können Benutzer selbst gewisse Einstellungen vornehmen ohne Root-Rechte haben zu müssen,  z.B. Aliase erstellen, die BASH konfigurieren....
+
+### Filterkommandos
+
++ 'grep PATTERN -datei-': gibt alle Zeilen aus '-datei-' aus, in denen das 'PATTERN' vorkommt.
+
++ 'head':
++ 'tail':
