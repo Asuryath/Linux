@@ -1,0 +1,250 @@
+= Dokumentation Linux Essentials
+:toc:
+
+== Grundlegende Kommandos
+
+* `cd <verzeichnis>`: in das Verzeichnis `<verzeichnis>` wechseln
+* `cd` wechselt ins Heimatverzeichnis des aktuellen Benutzers
+* `cat <datei>`: Inhalt von `<datei>` ausgeben
+* `less <datei>`: Inhalt von `<datei>` in einem Pager ausgeben (seitenweise, Möglichkeit zur Suche etc.)
+* `echo`: gibt alle Argumente aus
+* `echo $var`: gibt den Inhalt der Variablen `$var` aus
+* kann auch zum Debugging verwendet werden: `echo ls *.txt` zeigt z.B. das Ergebnis des Globbings an ohne das Kommando an sich auszuführen (`echo bla.txt hallo.txt huhu.txt`)
+* `touch <datei>` erstellt `<datei>` falls nicht vorhanden, ansonten ändert `touch` Zeitstempel
+
+== Hilfe auf der Kommandozeile
+
+* Option `<kommanod> --help`
+* Manpages `man <kommando>`: gibt es in der Regel nur für _extern_ realisierte Kommandos, nicht für _Builtins_ (z.B. `cd`, `export`, `alias` usw.)
+* `help <builtin>` zeigt die Hifle Seite für Builtins an
+* `help` Liste aller Builtins
+* `type <kommanod>` zeigt die Art eines Kommandos an: extern, Builtin, Alias etc.
+* Info System: `info <kommando>` zeigt die Info-Seite eines Kommandos an. Info Seiten sind noch ausführlicher als die Manpages, gibt es aber nicht für alle Kommandos, muss mit `apt install info` installiert werden
+
+== Pfadangaben
+
+* absoluter Pfad: kompletter Pfad, *immer* ausgehend vom Wurzelverzeichnis `/`, beginnt also immer mit einem `/`, einzige Ausnahme ist die Verwendung der Tilde `~` (aber diese steht ja für `/home/<user>`
+* relativer Pfad: ausgehend vom *aktuellen* Verzeichnis, beginnt *nie* mit einem `/`
+
+== Dateioperationen
+
+* `cp <quelle> <ziel>`: Kopiert die Datei `<quelle>` nach `<ziel>`. `<ziel>` kann entweder eine Datei oder ein Verzeichnis sein.
+* `cp -r <quellverzeichnis> <zielverzeichnis>`: Kopiert das gesamte Verzeichnis inkl. Inhalt (`-r`: _rekursiv_)
+* `rm <datei>`: löscht die Datei ohne Nachfrage
+* `rm -r <verzeichnis>`: löscht das gesamte Verzeichnis inkl. Inhalt ohne Nachfrage
+* `mv <quelle> <ziel>`: Verschiebt `<quelle>` nach `<ziel>`. `<quelle>` kann sowohl eine Datei als auch ein Verzeichnis sein. Es gibt keine Option `-r` für `mv`
+* `mv <quelle> <ziel>`: benennt `<quelle>` in `<ziel>` um
+* `-i` _Interactive_: kann `cp`, `mv` und `rm` übergeben werden, so dass eine Nachfrage erscheint, falls eine Datei überschrieben oder gelöscht würde
+
+== Sonderzeichen und Escaping
+
+* In der BASH gibt es bestimmte Sonderzeichen, welche nicht als reguläre Satzzeichen interpretiert werden, sonder eine Sonderbedeutung haben.
+* Eins der wichtigsten Sonderzeichen ist das Leerzeichen/Space, dies ist das *Trennzeichen*, hiermit erkennt die Shell z.B. was eine Kommando ist, was eine Option, was ein Argument usw.
+* Wollen wir ein Sonderzeichen als reguläres Satzzeichen darstellen ohne Sonderbedeutung, so müssen wir dieses Zeichen _maskieren_ bzw. _escapen_:
+* die doppelten Anführungszeichen `"` escapen alle Sonderzeichen bis auf das `$` (Substitution)
+* die einfachen Sonderzeichen `'` escapen sämtliche Sonderzeichen
+* der Backslash `\` maskiert das direkt darauffolgende Zeichen
+* einige Sonderzeichen: 
+** `<kommanod1> ; <kommando2>`: beide Kommandos werden nacheinander ausgeführt, unabhängig, ob sie erfolgreich waren oder nicht 
+** `<kommando1> && <kommando2>`: `<kommando2>` wird nur dann ausgeführt, wenn `<kommando1>` *erfolgreich ausgeführt* werden konnte
+** `<kommando1> || <kommando2>`: `<kommando2>` wird nur dann ausgeführt, wenn `<kommando1>` *nicht erfolgreich ausgeführt* werden konnte
+** `~`: Abkürzung für das Heimatverzeichnis des aktuellen Benutzers
+** `$`: Substitution/Ersetzung, z.B.: `$var` `$(kommando)` `$(( berechnung ))`
+** `#`: Leitet einen Kommentar ein
+** `*`: Globbing Character (Asterisk) - steht für ein beliebiges Zeichen, dass beliebig oft vorkommen darf (auch kein Mal)
+** `?`: Globbing Character - steht für ein beliebiges Zeichen, dass exakt einaml vorkommt
+
+== Variablen
+
+* es gibt zwei Arten von Variablen: 
+** Shellvariablen: sind nur in der aktuellen Shell gültig
+** Umgebungsvariablen: sind in allen Shells gültig (werden komplett in Großbuchstaben geschrieben [Konvention]), müssen in bestimmten Dateien konfiguriert werden (z.B. `~/.bashrc`, `~/.profile` etc.)
+* mit dem Kommado `export` kann eine Shellvariable auch in Subshells verfügbar gemacht werden
+
+== Subshells
+
+Eine Shell, die innerhalb einer anderen Shell geöffnet wird. Passiert relativ oft, ohne dass wir es direkt merken, z.B. bei der Kommandosubstitution, beim Aufruf von Funktionen in Skripten usw. Eine Subshell ist abhängig von der Elternshell. Wird die Elternshell geschlossen, werden gleichzeitig auch alle Subshells geschlossen.
+
+== Autocompletion
+
+Mit der TAB-Taste können Pfade, Kommandos, Optionen usw. automatisch vervollständigt werden. Gibt es mehrere Möglichkeiten zur Vervollständigung, kann man zweimal die TAB-Taste drücken und erhält eine Übersicht über die verschiedenen Möglichkeiten.
+
+== Brace Expansion
+
+* `touch file_{001..100}.txt` erstellt 100 Dateien mit den Namen `file_001.txt` bis `file_100.txt`
+* `ls *.{txt,pdf}` zeigt alle `txt` und `pdf` Dateien an
+
+== Konfigurationsdateien
+
+* Systemweite Konfigurationsdateien: liegen immer unter `/etc`, sind für alle Benutzer gültig (z.B. `/etc/bash.bashrc`)
+* Benutzerspezifische Konfigurationsdateien: liegen immer im Heimatverzeichnis des Benutzers, beginnen immer mit einem Punkt (`.`) oder liegen in einem Verzeichnis, das mit einem Punkt beginnt (z.B. `~/.bashrc`, `~/.config/htop`)
+* Einträge in den benutzerspezifischen Konfigurationsdateien überschreiben ggf. Einträge aus der systemweiten
+* So können Bentzer selbst gewisse Einstellungen vorhnehmen ohne Root-Rechte haben zu müssen, z.B. Aliase erstellen, die BASH konfigurieren...
+
+== Filterkommandos
+
+=== grep
+
+Mit `grep` kann der Inhalt von Dateien nach einem `PATTERN` durchsucht werden. Es wird die gesamte Zeile ausgegeben, in dene `PATTERN` vorkommt. 
+
+* `grep PATTERN <datei>`: gibt alle Zeilen aus `<datei>` aus, in denen das `PATTERN` vorkommt
+* `grep -c PATTERN <datei>`: gibt die Anzahl der Zeilen aus, auf die `PATTERN` passt
+* `grep -v PATTERN <datei>`: _inVertiert_ das Ergebnis, gibt also alle Zeilen aus, auf die `PATTERN` *nicht* passt
+* `grep -E PATTERN <datei>`: `PATTERN` kann ein _erweiterter_ Regulärer Ausdruck sein (_extended RegEx_)
+* `grep -i PATTERN <datei>`: Case Insensitive Suche, also keine Beachtung von Groß- und Kleinschreibung
+* `grep -n PATTERN <datei>`: Gibt zusätzlich Zeilennummern aus
+* `grep -r PATTERN <verzeichnis>`: durchsucht alle Dateien im Verzeichnis `verzeichnis` rekursiv nach `PATTERN`
+
+=== cut
+
+Mit `cut` können Spalten aus tabellarisch aufgebauten Textströmen/-dateien ausgeschnitten werden.
+
+* `cut -f<spalte/field>`: zeige nur die n-te Spalte an 
+* `cut -d<trennzeichen/delimiter>`: nutze `<trennzeichen>` als Delimiter (Standard ist TAB)
+* `cut -d: -f7 /etc/passwd`: zeige nur die 7. Spalte der Datei `/etc/passwd` an
+* `cut -d: -f1,7 /etc/passwd`: zeige nur die 1. und 7. Spalte der Datei `/etc/passwd` an
+
+=== head und tail
+
+* `head`: zeigt die ersten 10 Zeilen einer Datei/Textstroms an
+* `head -n 20`: zeigt die ersten 20 Zeilen einer Datei/Textstroms an
+* `tail`: zeigt die letzten 10 Zeilen einer Datei/Textstroms an
+* `tail -n 20`: zeigt die letzten 20 Zeilen einer Datei/Textstroms an
+* `tail -f`: zeigt die letzten 10 Zeilen einer Datei/Textstroms an und aktualisiert die Ausgabe fortlaufend. Wir können so Änderungen an der Datei live beobachten
+
+== Paketmanagement
+
+=== Debian basierte Distributionen
+
+* `apt-get update`: Aktualisiert die Paketliste, keine Änderungen am System
+* `apt-get upgrade`: Aktualisiert sämtliche Pakete auf dem System auf die in der Paketliste angegebene Version
+* `apt-get install <paket>`: Installiert das Paket `<paket>` inkl. aller zum Betrieb notwendigen Abhängigkeiten
+* `apt-get remove <paket>`: Entfernt das Paket `<paket>`, Konfigurationsdateien bleiben erhalten
+* `apt-get remove --purge <paket>`: Entfernt das Paket `<paket>`, Konfigurationsdateien werden mit entfernt
+* `apt-get purge <paket>`: Entfernt das Paket `<paket>`, Konfigurationsdateien werden mit entfernt
+* `apt-cache <suchbegriff>`: Durchsucht die Paketliste nach Paketen auf die der Suchbegriff passt
+
+=== RedHat basierte Distributionen
+
+* `yum update`: Aktualisiert die Paketliste und alle auf dem System vorhandenen Pakete in einem Schritt
+* `yum install <paket>`: Installiert das Paket `<paket>` inkl. aller zum Betrieb notwendigen Abhängigkeiten
+* `yum remove <paket>`: Entfernt das Paket `<paket>`, Konfigurationsdateien bleiben erhalten
+* `yum search <suchbegriff>`: Durchsucht die Paketliste nach Paketen auf die der Suchbegriff passt
+
+== Berechtigungen
+
+Berechtigungen können vom Besitzer der Datei oder `root` mit dem Kommando `chmod` geändert werden.
+
+=== symbolische Rechtevergabe
+
+* `r`: read/lesen
+* `w`: write/schreiben
+* `x`: execute/ausführen
+
+Füge das Ausführungsrecht für den Besitzer der Datei hinzu:
+
+ chmod u+x script.sh      # u: user
+
+Füge das Ausführungsrecht für die Gruppe der Datei hinzu:
+
+ chmod g+x script.sh      # g: group
+
+Füge das Ausführungsrecht für den Rest der Welt hinzu:
+
+ chmod o+x script.sh      # o: others
+
+Entziehe das Schreibrecht auf die Datei für die Gruppe und den Rest der Welt:
+
+ chmod go-w datei
+
+Setze die Rechte für Besitzer und Gruppe auf lesen und schreiben:
+
+ chmod ug=rw datei
+
+=== oktale Rechtevergabe
+
+Jedes Berechtigungsbit wird durch eine Oktalzahl repräsentiert:
+
+* `r`: 4
+* `w`: 2 
+* `x`: 1
+
+Berechtigungen können immer nur gesamt für User, Group und Others vergeben werden, nicht einzeln. Wir können Berechtigungen also nur komplett setzen. Die Werte der einzelnen Berechtigungen werden addiert.
+
+Lese-, Schreibe- und Ausführungsrecht für User, Lese- und Ausführungsrecht für Group, nur Leserecht für Others:
+
+ chmod 754 datei
+
+Herkunft Notation:
+
+ Okt  Bin
+  1   001 
+  2   010
+  4   100
+
+ 111110100 
+ rwxrw-r--
+
+=== Sonderbits
+
+==== SUID-Bit / SetUserId-Bit
+
+Auf einen ausführbare Binärdatei gesetzt, bewirkt das SUID-Bit, dass die Datei mit den Berechtigungen des Besitzers der Datei ausgeführt wird, anstatt mit den Berechtigungen des aufrufenden Benutzers.
+
+ chmod u+s datei
+ chmod 4664 datei
+
+Beispiel: `/usr/bin/passwd`
+
+ -rwsr-xr-x 1 root root 63960 Feb  7  2020 /usr/bin/passwd
+
+==== SGID-Bit / SetGroupId-Bit
+
+Auf einen ausführbare Binärdatei gesetzt, bewirkt das SGID-Bit, dass die Datei mit den Berechtigungen des Gruppe der Datei ausgeführt wird, anstatt mit den Berechtigungen des aufrufenden Benutzers.
+
+Auf ein Verzeichnis gesestzt, bewirkt es, dass alle neu darin erstellten Dateien der Gruppe zugeordnet werden, der auch das Verzeichnis zugeordnet ist.
+
+ chmod g+s datei
+ chmod 2664 datei
+
+Beispiel: `/var/mail`:
+
+ drwxrwsr-x 2 root mail 4096 Jul 28 08:43 mail/
+
+==== StickyBit
+
+Auf ein Verzeichnis gesetzt, bewirkt es, dass darin enthaltene Dateien nur von ihrem Besitzer oder `root` geändert oder gelöscht werden können.
+
+ chmod o+t datei
+ chmod 1664 datei
+
+Beispiel: `/tmp`:
+
+ drwxrwxrwt 11 root root 4096 Jul 28 08:26 /tmp/
+
+== Skripte
+
+* Skripte beginnen mit dem _Shebang_, also der Angabe des Interpreters (BASH, Python, Perl, Ruby, PHP ...)
+* Kommentare werden durch eine Raute (`#`) eingeleitet
+
+=== Besondere Variablen
+
+* `$0`: Name des Skripts
+* `$1`: Erster beim Aufruf des Skripts übergebener Parameter
+* `$2`: Zweiter beim Aufruf des Skripts übergebener Parameter
+* `$3`: Dritter beim Aufruf des Skripts übergebener Parameter
+* `$4`: Vierter beim Aufruf des Skripts übergebener Parameter usw.
+* `$#`: Anzahl der dem Skript übergebenen Parameter
+* `$@`: Enthält alles dem Skript übergebenen Parameter
+* `$*`: Enthält alles dem Skript übergebenen Parameter
+* `$$`: PID des Skripts
+* `$?`: Enthält den Rückgabewert des zuletzt ausgeführten Kommandos (steht hier eine 0, war das zuletzt ausgeführte Kommando erfolgreich, steht irgendetwas anderes darin, wurde das Kommando *nicht* erfolgreich _ausgeführt_
+
+
+
+
+
+
+
+
+
